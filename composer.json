@@ -1,0 +1,24 @@
+{
+	"name": "aimfornan/nan-db",
+	"description": "NaN\\Database",
+	"license": "MIT",
+	"autoload": {
+		"psr-4": {
+			"NaN\\": "src/"
+		}
+	},
+	"config": {
+		"allow-plugins": {
+			"pestphp/pest-plugin": true
+		}
+	},
+    "require": {
+		"ext-pdo": "*"
+	},
+	"require-dev": {
+		"pestphp/pest": "^2.34"
+	},
+	"scripts": {
+		"test": "pest"
+	}
+}
