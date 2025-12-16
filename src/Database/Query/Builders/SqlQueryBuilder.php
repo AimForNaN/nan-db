@@ -13,9 +13,12 @@ class SqlQueryBuilder implements \ArrayAccess, SqlQueryBuilderInterface {
 	) {
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function exec(StatementInterface $statement): mixed {
 		if (!$statement->validate()) {
-			\trigger_error('Malformed query statement!', \E_USER_ERROR);
+			throw new \Exception('Malformed query statement!');
 		}
 
 		$bindings = $statement->getBindings();
@@ -58,11 +61,11 @@ class SqlQueryBuilder implements \ArrayAccess, SqlQueryBuilderInterface {
 		$table = $this->options['table'] ?? '';
 		$database = $this->options['database'] ?? '';
 
-		$fn($pull);
-
 		if (!empty($table)) {
 			$pull->from($table, $database);
 		}
+
+		$fn($pull);
 
 		return $this->exec($pull);
 	}

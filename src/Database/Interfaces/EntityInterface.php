@@ -2,18 +2,12 @@
 
 namespace NaN\Database\Interfaces;
 
-use NaN\Database\Query\Builders\Interfaces\QueryBuilderInterface;
-
 interface EntityInterface {
-	static public function database(): QueryBuilderInterface;
+	public function fill(iterable $data);
 
-	static public function mappings(): array;
-
-	public function patch(): mixed;
-
-	static public function pull(array $filters): mixed;
-
-	public function purge(): mixed;
-
-	static public function push(array $data): mixed;
+	/**
+	 * @deprecated Replaced by property hooks.
+	 * @return array
+	 */
+	public static function mappings(): array;
 }

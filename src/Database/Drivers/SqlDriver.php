@@ -12,6 +12,9 @@ class SqlDriver implements DriverInterface {
 	) {
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function createConnection(array $options = []): QueryBuilderInterface {
 		return new SqlQueryBuilder(
 			new \PDO(
@@ -24,20 +27,23 @@ class SqlDriver implements DriverInterface {
 		);
 	}
 
+	/**
+	 * @throws \Exception
+	 */
 	public function generateDsn(): string {
 		if (empty($this->config['driver'])) {
-			\trigger_error('Driver not configured!', E_USER_ERROR);
+			throw new \Exception('Driver not configured!');
 		}
 
 		$prefix = $this->config['driver'];
 		$config = $this->config[$prefix] ?? null;
 
 		if (empty($config)) {
-			\trigger_error('Driver not configured!', E_USER_ERROR);
+			throw new \Exception('Driver not configured!');
 		}
 
 		if (\is_array($config)) {
-			$config = \array_map(fn($key, $value) => "{$key}={$value}", \array_keys($config), \array_values($config),);
+			$config = \array_map(fn($key, $value) => "{$key}={$value}", \array_keys($config), \array_values($config));
 			return "{$prefix}:" . \implode(';', $config);
 		}
 
