@@ -6,9 +6,12 @@ use NaN\Database\Query\Statements\Clauses\FromClause;
 use NaN\Database\Query\Statements\Pull;
 
 trait FromClauseTrait {
+	/**
+	 * @throws \Exception
+	 */
 	public function from(\Closure|string $table, string $database = ''): static {
 		if (empty($table)) {
-			\trigger_error('From clause: Table name cannot be empty!', E_USER_ERROR);
+			throw new \Exception('From clause: Table name cannot be empty!');
 		}
 
 		$from_clause = new FromClause();
