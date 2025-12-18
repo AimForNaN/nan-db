@@ -2,13 +2,15 @@
 
 namespace NaN\Database\Query\Statements\Clauses;
 
-use NaN\Database\Query\Statements\Interfaces\StatementInterface;
-use NaN\Database\Query\Statements\Traits\StatementTrait;
+use NaN\Database\Query\Statements\{
+	Interfaces\StatementInterface,
+	Traits\StatementTrait,
+};
 
 final class WhereClause implements StatementInterface {
 	use StatementTrait;
 
-	public function __invoke(string $column, string $operator, mixed $value): static {
+	public function __invoke(string $column, string $operator, mixed $value): self {
 		$this->_addColumn(null, $column, $operator, $value);
 		return $this;
 	}
@@ -23,7 +25,7 @@ final class WhereClause implements StatementInterface {
 	 *
 	 * @return static
 	 */
-	protected function _addColumn(?string $delimiter, string $column, string $operator, mixed $value): static {
+	protected function _addColumn(?string $delimiter, string $column, string $operator, mixed $value): self {
 		$this->data[$delimiter ?: \count($this->data)] = [
 			'expr' => 'condition',
 			'delimiter' => $delimiter,
@@ -38,11 +40,11 @@ final class WhereClause implements StatementInterface {
 	 * Add sub where clause.
 	 *
 	 * @param ?string $delimiter AND, OR...
-	 * @param Closure $fn
+	 * @param \Closure $fn
 	 *
 	 * @return static
 	 */
-	protected function _addGroup(?string $delimiter, \Closure $fn): static {
+	protected function _addGroup(?string $delimiter, \Closure $fn): self {
 		$where_group = new static();
 		$this->data[$delimiter ?: \count($this->data)] = [
 			'expr' => 'group',
@@ -58,15 +60,15 @@ final class WhereClause implements StatementInterface {
 	/**
 	 * Add AND where expression.
 	 *
-	 * @param Closure|string $column
-	 * @param string $operator =, >=, <=, IN...
+	 * @param \Closure|string $column
+	 * @param string|null $operator =, >=, <=, IN...
 	 * @param mixed $value
 	 *
 	 * @return static
 	 *
 	 * @see _addColumn()
 	 */
-	public function and(\Closure|string $column, ?string $operator = null, mixed $value = null): static {
+	public function and(\Closure|string $column, ?string $operator = null, mixed $value = null): self {
 		if ($column instanceof \Closure) {
 			return $this->_addGroup('AND', $column);
 		}
@@ -101,15 +103,15 @@ final class WhereClause implements StatementInterface {
 	/**
 	 * Add OR where expression.
 	 *
-	 * @param Closure|string $column
-	 * @param string $operator =, >=, <=, IN...
+	 * @param \Closure|string $column
+	 * @param string|null $operator =, >=, <=, IN...
 	 * @param mixed $value
 	 *
 	 * @return static
 	 *
 	 * @see _addColumn()
 	 */
-	public function or(\Closure|string $column, ?string $operator = null, mixed $value = null): static {
+	public function or(\Closure|string $column, ?string $operator = null, mixed $value = null): self {
 		if ($column instanceof \Closure) {
 			return $this->_addGroup('OR', $column);
 		}
@@ -143,11 +145,11 @@ final class WhereClause implements StatementInterface {
 			return $ret;
 		}, '');
 	}
-	
+
 	static public function renderValue(mixed $value, bool $prepared = false): string {
 		switch (gettype($value)) {
 			case 'array':
-				return '(' . \implode(', ', \array_map(fn($v) => static::renderValue($v, $prepared), $value)) . ')';
+				return '(' . \implode(', ', \array_map(fn($v) => self::renderValue($v, $prepared), $value)) . ')';
 			case 'string':
 				return $prepared ? '?' : '"' . $value . '"';
 		}
