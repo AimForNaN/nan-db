@@ -4,9 +4,9 @@ namespace NaN\Database\Interfaces;
 
 use Nette\Schema\Schema;
 
-interface TableInterface {
-	public const string DATABASE_NAME = '';
-	public const string TABLE_NAME = '';
+interface SqlTableInterface {
+	public const DATABASE_NAME = '';
+	public const TABLE_NAME = '';
 
 	public static function render(): string;
 

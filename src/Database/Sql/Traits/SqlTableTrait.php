@@ -8,7 +8,7 @@ use Nette\Schema\{
 	Schema,
 };
 
-trait TableTrait {
+trait SqlTableTrait {
 	public static function render(): string {
 		return '';
 	}
