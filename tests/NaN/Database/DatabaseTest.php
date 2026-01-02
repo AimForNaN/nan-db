@@ -1,6 +1,7 @@
 <?php
 
 use NaN\Database\Drivers\SqlDriver;
+use NaN\Database\Query\Statements\Raw;
 use NaN\Database\Query\Statements\Interfaces\{
 	PullInterface,
 	PushInterface,
@@ -8,28 +9,30 @@ use NaN\Database\Query\Statements\Interfaces\{
 
 describe('Database', function () {
 	test('Push and pull', function () {
-		$driver = new SqlDriver([
+		$driver = new SqlDriver();
+		$db = $driver->createConnection([
 			'driver' => 'sqlite',
 			'sqlite' => ':memory:',
 		]);
-		$db = $driver->createConnection();
+		$query = $driver->createQueryBuilder();
 
-		expect($db->raw('CREATE TABLE `test` (`id` int);'))->toBeTruthy();
+		expect($db->exec(new Raw('CREATE TABLE `test` (`id` int);')))->toBeTruthy();
 
-		$result = $db->raw('SELECT `name` FROM `sqlite_master` WHERE type="table" AND name="test";');
-		expect($result)->toBeInstanceOf(\PDOStatement::class);
-		expect([...$result])->toHaveCount(1);
+		$result = $db->exec(new Raw('SELECT `name` FROM `sqlite_master` WHERE type="table" AND name="test";'));
+		expect($result)->toBeInstanceOf(\PDOStatement::class)
+			->and([...$result])->toHaveCount(1)
+		;
 
-		$db->push(function (PushInterface $push) {
-			$push->push([
+		$query->push(function (PushInterface $query) {
+			$query->push([
 				'id' => 255,
 			])->into('test');
-		});
-		$results = $db->pull(function (PullInterface $pull) {
-			$pull->pull([
+		})->exec($db);
+		$results = $query->pull(function (PullInterface $query) {
+			$query->pull([
 				'id',
 			])->from('test');
-		});
+		})->exec($db);
 
 		expect($results)->toBeInstanceOf(\PDOStatement::class);
 

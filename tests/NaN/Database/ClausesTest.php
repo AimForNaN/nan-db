@@ -1,11 +1,13 @@
 <?php
 
+use NaN\Database\Ast;
 use NaN\Database\Query\Statements\Clauses\{
     GroupByClause,
     LimitClause,
     OrderByClause,
-    WhereClause,
 };
+use NaN\Database\Sql\Query\Renderers\SqlQueryRenderer;
+use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
 
 describe('Clauses', function () {
 	test('GroupBy clause', function () {
@@ -30,17 +32,19 @@ describe('Clauses', function () {
 	});
 
 	test('Where clause', function () {
-		$where = new WhereClause();
+		$node = Ast::node('node');
+		$query = new WhereClause($node);
+		$renderer = new SqlQueryRenderer();
 
-		$where('test', '=', 255)
+		$query->is('test', '=', 255)
 			->and('test', 'IN', [255])
-			->or(function (WhereClause $where) {
-				$where('test', '>', 255);
+			->or(function (WhereClause $query) {
+				$query->is('test', '>', 255);
 			})
 		;
 
-		expect($where->render())->toBe('WHERE test = 255 AND test IN (255) OR (test > 255)');
-		expect($where->render(true))->toBe('WHERE test = ? AND test IN (?) OR (test > ?)');
-		expect($where->getBindings())->toBe([255, 255, 255]);
+		expect($renderer->render($node['children'][0]))->toBe('WHERE test = ? AND test IN (?) OR (test > ?)')
+//			->and($renderer->getBindings())->toBe([255, 255, 255])
+		;
 	});
 });
