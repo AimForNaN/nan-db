@@ -2,12 +2,14 @@
 
 namespace NaN\Database\Query\Builders\Interfaces;
 
+use NaN\Database\Query\Statements\Interfaces\StatementInterface;
+
 interface QueryBuilderInterface {
-	public function patch(): mixed;
+	public function patch(): StatementInterface;
 
-	public function pull(): mixed;
+	public function pull(): StatementInterface;
 
-	public function purge(): mixed;
+	public function purge(): StatementInterface;
 
-	public function push(): mixed;
+	public function push(): StatementInterface;
 }

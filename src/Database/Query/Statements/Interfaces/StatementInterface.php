@@ -2,10 +2,8 @@
 
 namespace NaN\Database\Query\Statements\Interfaces;
 
-interface StatementInterface {
-	public function getBindings(): array;
+use NaN\Database\Interfaces\ConnectionInterface;
 
-	public function render(bool $prepared = false): string;
-
-	public function validate(): bool;
+interface StatementInterface extends \Stringable {
+	public function exec(ConnectionInterface $connection): mixed;
 }

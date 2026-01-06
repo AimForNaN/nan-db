@@ -2,37 +2,23 @@
 
 namespace NaN\Database\Query\Statements\Traits;
 
-use NaN\Database\Query\Statements\Interfaces\StatementInterface;
+use NaN\Database\Interfaces\ConnectionInterface;
+use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
 
 trait StatementTrait {
-	protected array $data = [];
+	protected mixed $_data;
 
-	public function getBindings(): array {
-		return \array_reduce($this->data, function (array $ret, StatementInterface $stmt): array {
-			return \array_merge($ret, $stmt->getBindings());
-		}, []);
+	public function __construct(
+		protected RendererInterface $_renderer,
+	) {
 	}
 
-	public function render(bool $prepared = false): string {
-		ksort($this->data);
-		return \implode(' ',
-			\array_map(fn(StatementInterface $stmt) => $stmt->render($prepared), $this->data)
-		);
+	public function __toString(): string {
+		return $this->_renderer->render($this->_data);
 	}
 
-	public function validate(): bool {
-		if (empty($this->data)) {
-			return false;
-		}
-
-		foreach ($this->data as $clause) {
-			if ($clause instanceof StatementInterface) {
-				if (!$clause->validate()) {
-					return false;
-				}
-			}
-		}
-
-		return true;
+	public function exec(ConnectionInterface $connection): mixed {
+		$query = $this->__toString();
+		return $connection->exec($query);
 	}
 }

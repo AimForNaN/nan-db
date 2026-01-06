@@ -1,52 +1,75 @@
 <?php
 
-use NaN\Database\Query\Statements\{
-    Patch,
-    Pull,
-    Purge,
-    Push,
+use NaN\Database\Sql\Query\{
+	Renderers\SqlQueryRenderer,
+	Statements\DeleteStatement,
+	Statements\InsertStatement,
+	Statements\SelectStatement,
+	Statements\UpdateStatement,
 };
 
 describe('Statements', function () {
 	test('Patch', function () {
-		$patch = new Patch();
+		$query = new UpdateStatement(new SqlQueryRenderer());
 
-		$patch->patch('test')->with(['id' => 255]);
-		expect($patch->render())->toBe('UPDATE test SET id = 255');
-		expect($patch->render(true))->toBe('UPDATE test SET id = ?');
+		$columns = [
+			'id' => 255,
+			'name' => 'test',
+		];
+		$query->update('test')
+			->with($columns)
+		;
+		expect((string)$query)->toBe('UPDATE `test` SET `id` = ?, `name` = ?')
+			->and($query->getBindings())->toBe(\array_values($columns))
+		;
 	});
 
 	test('Pull', function () {
-		$pull = new Pull();
+		$query = new SelectStatement(new SqlQueryRenderer());
 
-		$pull->from('test')->where('id', '=', 1);
-		expect($pull->render())->toBe('SELECT * FROM test WHERE id = 1');
+		$query->select()
+			->from('test')
+		;
+		expect((string)$query)->toBe('SELECT ALL FROM `test`');
 
-		$pull = new Pull();
-		$pull->pull(['id'])->from('test');
-		expect($pull->render())->toBe('SELECT id FROM test');
-
-		$pull = new Pull();
-		$pull->from(function ($pull) {
-			expect($pull)->toBeInstanceOf(Pull::class);
-			$pull->from('test');
-		});
-		expect($pull->render())->toBe('SELECT * FROM (SELECT * FROM test)');
+		$query->select(['id'])
+			->from('test')
+			->where('id', '=', 255)
+			->groupBy(['id', 'test'])
+			->orderBy([
+				'id' => 'desc',
+				'name' => 'asc',
+			])
+			->limit(1, 1)
+		;
+		expect((string)$query)->toBe(\implode(' ', [
+			'SELECT `id` FROM `test`',
+			'WHERE `id` = ?',
+			'GROUP BY `id`, `test`',
+			'ORDER BY `id` DESC, `name` ASC',
+			'LIMIT 1',
+			'OFFSET 1',
+			]))
+			->and($query->getBindings())->toBe([255])
+		;
 	});
 
 	test('Purge', function () {
-		$purge = new Purge();
+		$query = new DeleteStatement(new SqlQueryRenderer());
 
-		$purge->from('test');
-		expect($purge->render())->toBe('DELETE FROM test');
+		$query->from('test');
+		expect((string)$query)->toBe('DELETE FROM `test`');
 	});
 
 	test('Push', function () {
-		$push = new Push();
+		$query = new InsertStatement(new SqlQueryRenderer());
 
-		$push->push(['id' => 255])->into('test');
-		expect($push->render())->toBe('INSERT INTO test (id) VALUES (255)');
-		expect($push->render(true))->toBe('INSERT INTO test (id) VALUES (?)');
-		expect($push->getBindings())->toBe([255]);
+		$columns = ['id' => 255, 'name' => 'test'];
+		$query->insert($columns)
+			->into('test')
+		;
+		expect((string)$query)->toBe('INSERT INTO `test` (`id`, `name`) VALUES (?, ?)')
+			->and($query->getBindings())->toBe(\array_values($columns))
+		;
 	});
 });
