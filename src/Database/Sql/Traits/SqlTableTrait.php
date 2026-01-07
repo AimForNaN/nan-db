@@ -1,6 +1,6 @@
 <?php
 
-namespace NaN\Database\Traits;
+namespace NaN\Database\Sql\Traits;
 
 use Nette\Schema\{
 	Expect,
