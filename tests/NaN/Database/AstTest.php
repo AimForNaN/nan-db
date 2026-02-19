@@ -25,14 +25,14 @@ describe('Abstract syntax tree', function () {
 	test('push', function () {
 		$parent = Ast::tree('parent');
 		$child = Ast::tree('child');
-		$expr = Ast::expr('test');
+		$expr = Ast::identifier('test');
 
 		$child->push($expr);
 		$parent->push($child);
 
 		expect($parent->toArray())->toBe(Ast::tree('parent', [
 			Ast::tree('child', [
-				Ast::expr('test'),
+				Ast::identifier('test'),
 			]),
 		])->toArray());
 	});

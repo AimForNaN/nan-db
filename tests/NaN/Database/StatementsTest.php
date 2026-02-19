@@ -10,7 +10,8 @@ use NaN\Database\Sql\Query\{
 
 describe('Statements', function () {
 	test('Patch', function () {
-		$query = new UpdateStatement(new SqlQueryRenderer());
+		$renderer = new SqlQueryRenderer();
+		$query = new UpdateStatement();
 
 		$columns = [
 			'id' => 255,
@@ -19,18 +20,19 @@ describe('Statements', function () {
 		$query->update('test')
 			->with($columns)
 		;
-		expect((string)$query)->toBe('UPDATE `test` SET `id` = ?, `name` = ?')
+		expect($renderer->render($query))->toBe('UPDATE `test` SET `id` = ?, `name` = ?')
 			->and($query->getBindings())->toBe(\array_values($columns))
 		;
 	});
 
 	test('Pull', function () {
-		$query = new SelectStatement(new SqlQueryRenderer());
+		$renderer = new SqlQueryRenderer();
+		$query = new SelectStatement();
 
 		$query->select()
 			->from('test')
 		;
-		expect((string)$query)->toBe('SELECT ALL FROM `test`');
+		expect($renderer->render($query))->toBe('SELECT ALL FROM `test`');
 
 		$query->select(['id'])
 			->from('test')
@@ -42,7 +44,7 @@ describe('Statements', function () {
 			])
 			->limit(1, 1)
 		;
-		expect((string)$query)->toBe(\implode(' ', [
+		expect($renderer->render($query))->toBe(\implode(' ', [
 			'SELECT `id` FROM `test`',
 			'WHERE `id` = ?',
 			'GROUP BY `id`, `test`',
@@ -55,20 +57,22 @@ describe('Statements', function () {
 	});
 
 	test('Purge', function () {
-		$query = new DeleteStatement(new SqlQueryRenderer());
+		$renderer = new SqlQueryRenderer();
+		$query = new DeleteStatement();
 
 		$query->from('test');
-		expect((string)$query)->toBe('DELETE FROM `test`');
+		expect($renderer->render($query))->toBe('DELETE FROM `test`');
 	});
 
 	test('Push', function () {
-		$query = new InsertStatement(new SqlQueryRenderer());
+		$renderer = new SqlQueryRenderer();
+		$query = new InsertStatement();
 
 		$columns = ['id' => 255, 'name' => 'test'];
 		$query->insert($columns)
 			->into('test')
 		;
-		expect((string)$query)->toBe('INSERT INTO `test` (`id`, `name`) VALUES (?, ?)')
+		expect($renderer->render($query))->toBe('INSERT INTO `test` (`id`, `name`) VALUES (?, ?)')
 			->and($query->getBindings())->toBe(\array_values($columns))
 		;
 	});

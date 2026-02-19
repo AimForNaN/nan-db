@@ -6,8 +6,7 @@ use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
 
 describe('Clauses', function () {
 	test('Where clause', function () {
-		$node = Ast::tree('node');
-		$query = new WhereClause($node);
+		$query = new WhereClause();
 		$renderer = new SqlQueryRenderer();
 
 		$query->is('test', '=', 255)
@@ -17,6 +16,6 @@ describe('Clauses', function () {
 			})
 		;
 
-		expect($renderer->render($node))->toBe('NODE WHERE `test` = ? AND `test` IN (?) OR (`test` > ?)');
+		expect($renderer->render($query))->toBe('`test` = ? AND `test` IN (?) OR (`test` > ?)');
 	});
 });
