@@ -6,18 +6,14 @@ use NaN\Database\Ast;
 use NaN\Database\Quotes;
 
 trait OrderByTrait {
-	public function orderBy(array $order): static {
-		$order_by = Ast::tree('order by');
-		$order_by_list = Ast::list();
+	protected array $_order_by = [];
 
-		foreach ($order as $column => $direction) {
-			$expr = Ast::expr($column, \strtoupper($direction), quotes: [Quotes::Backtick]);
-
-			$order_by_list->push($expr);
+	public function orderBy(array $order_by): static {
+		if (empty($order_by)) {
+			throw new \InvalidArgumentException('Order-by columns must not be empty!');
 		}
 
-		$order_by->push($order_by_list);
-		$this->_data->push($order_by);
+		$this->_order_by = $order_by;
 
 		return $this;
 	}

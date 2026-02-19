@@ -3,7 +3,7 @@
 namespace NaN\Database\Sql\Query\Statements;
 
 use NaN\Database\Ast;
-use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
+use NaN\Database\Ast\Node;
 use NaN\Database\Sql\Query\Statements\{
 	Interfaces\SqlStatementInterface,
 	Traits\SqlStatementTrait,
@@ -22,9 +22,19 @@ class DeleteStatement implements SqlStatementInterface {
 	use OrderByTrait;
 	use WhereClauseTrait;
 
-	public function __construct(
-		protected RendererInterface $_renderer,
-	) {
-		$this->_data = Ast::tree('delete');
+	public function toAst(): Node {
+		$ast = Ast::tree('delete', [
+			Ast::raw('DELETE'),
+			Ast::space(),
+		]);
+
+		if (\count($this->_from)) {
+			$ast->push(Ast::raw('FROM'));
+			$ast->push(Ast::space());
+			$ast->push($this->_from);
+			$ast->push(Ast::space());
+		}
+
+		return $ast;
 	}
 }

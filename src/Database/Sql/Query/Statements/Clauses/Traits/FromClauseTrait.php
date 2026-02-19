@@ -2,16 +2,15 @@
 
 namespace NaN\Database\Sql\Query\Statements\Clauses\Traits;
 
-use NaN\Database\Ast;
-use NaN\Database\Quotes;
+use NaN\Database\Ast\Tree;
 
 trait FromClauseTrait {
 	use TableRefTrait;
 
-	public function from(string $table, ?string $database = null): static {
-		$from = $this->_createTableReference('from', $table, $database);
+	protected Tree $_from;
 
-		$this->_data->push($from);
+	public function from(string $table, ?string $database = null): static {
+		$this->_from = $this->_createTableReference($table, $database);
 
 		return $this;
 	}

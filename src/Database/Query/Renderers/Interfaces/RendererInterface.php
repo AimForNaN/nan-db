@@ -2,6 +2,8 @@
 
 namespace NaN\Database\Query\Renderers\Interfaces;
 
+use NaN\Database\Query\Statements\Interfaces\ClauseInterface;
+
 interface RendererInterface {
-	public function render(mixed $data): string;
+	public function render(ClauseInterface $data): string;
 }

@@ -5,13 +5,14 @@ namespace NaN\Database\Sql\Query\Statements\Clauses\Traits;
 use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
 
 trait WhereClauseTrait {
+	protected WhereClause $_where;
 	public function where(\Closure|string $column, ?string $operator = null, mixed $value = null): static {
-		$where_clause = new WhereClause($this->_data);
+		$this->_where = new WhereClause();
 
 		if ($column instanceof \Closure) {
-			$column($where_clause);
+			$column($this->_where);
 		} else {
-			$where_clause->is($column, $operator, $value);
+			$this->_where->is($column, $operator, $value);
 		}
 
 		return $this;
