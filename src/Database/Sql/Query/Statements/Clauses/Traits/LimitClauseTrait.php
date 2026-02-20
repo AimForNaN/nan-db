@@ -3,6 +3,7 @@
 namespace NaN\Database\Sql\Query\Statements\Clauses\Traits;
 
 use NaN\Database\Ast;
+use NaN\Database\Ast\Tree;
 
 trait LimitClauseTrait {
 	protected int $_offset = 0;
@@ -23,5 +24,29 @@ trait LimitClauseTrait {
 		$this->_offset = $offset;
 
 		return $this;
+	}
+
+	protected function _pushLimitClause(Tree $ast): void {
+		if ($this->_limit > 0) {
+			$limit = Ast::clause([
+				Ast::raw('LIMIT'),
+				Ast::space(),
+				Ast::value($this->_limit),
+				Ast::space(),
+			]);
+
+			$ast->push($limit);
+		}
+
+		if ($this->_offset > 0) {
+			$offset = Ast::clause([
+				Ast::raw('OFFSET'),
+				Ast::space(),
+				Ast::value($this->_offset),
+				Ast::space(),
+			]);
+
+			$ast->push($offset);
+		}
 	}
 }

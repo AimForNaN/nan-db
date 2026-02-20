@@ -10,18 +10,18 @@ use NaN\Database\Sql\Query\Statements\{
 };
 use NaN\Database\Sql\Query\Statements\Clauses\{
 	Traits\FromClauseTrait,
-	Traits\GroupByTrait,
+	Traits\GroupByClauseTrait,
 	Traits\LimitClauseTrait,
-	Traits\OrderByTrait,
+	Traits\OrderByClauseTrait,
 	Traits\WhereClauseTrait,
 };
 
 final class SelectStatement implements SqlStatementInterface {
 	use SqlStatementTrait;
 	use FromClauseTrait;
-	use GroupByTrait;
+	use GroupByClauseTrait;
 	use LimitClauseTrait;
-	use OrderByTrait;
+	use OrderByClauseTrait;
 	use WhereClauseTrait;
 
 	protected array $_columns = [];
@@ -81,77 +81,11 @@ final class SelectStatement implements SqlStatementInterface {
 			$ast->push($list);
 		}
 
-		if (\count($this->_from)) {
-			$ast->push(Ast::clause([
-				Ast::raw('FROM'),
-				Ast::space(),
-				$this->_from,
-				Ast::space(),
-			]));
-		}
-
-		if (isset($this->_where) && \count($this->_where)) {
-			$ast->push(Ast::clause([
-				Ast::raw('WHERE'),
-				Ast::space(),
-				$this->_where->toAst(),
-				Ast::space(),
-			]));
-		}
-
-		if (\count($this->_group_by)) {
-			$group_by = Ast::list(\array_map(fn($column) => Ast::identifier($column), $this->_group_by));
-
-			$ast->push(Ast::clause([
-				Ast::raw('GROUP BY'),
-				Ast::space(),
-				$group_by,
-				Ast::space(),
-			]));
-		}
-
-		if (\count($this->_order_by)) {
-			$order_by = Ast::list();
-
-			foreach ($this->_order_by as $column => $direction) {
-				$expr = Ast::expression([
-					Ast::identifier($column),
-					Ast::space(),
-					Ast::value(\strtoupper($direction)),
-				]);
-
-				$order_by->push($expr);
-			}
-
-			$ast->push(Ast::clause([
-				Ast::raw('ORDER BY'),
-				Ast::space(),
-				$order_by,
-				Ast::space(),
-			]));
-		}
-
-		if ($this->_limit > 0) {
-			$limit = Ast::clause([
-				Ast::raw('LIMIT'),
-				Ast::space(),
-				Ast::value($this->_limit),
-				Ast::space(),
-			]);
-
-			$ast->push($limit);
-		}
-
-		if ($this->_offset > 0) {
-			$offset = Ast::clause([
-				Ast::raw('OFFSET'),
-				Ast::space(),
-				Ast::value($this->_offset),
-				Ast::space(),
-			]);
-
-			$ast->push($offset);
-		}
+		$this->_pushFromClause($ast);
+		$this->_pushWhereClause($ast);
+		$this->_pushGroupByClause($ast);
+		$this->_pushOrderByClause($ast);
+		$this->_pushLimitClause($ast);
 
 		return $ast;
 	}

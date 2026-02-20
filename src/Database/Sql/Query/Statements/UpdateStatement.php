@@ -9,18 +9,16 @@ use NaN\Database\Sql\Query\Statements\{
 	Traits\SqlStatementTrait,
 };
 use NaN\Database\Sql\Query\Statements\Clauses\{
-	Traits\FromClauseTrait,
 	Traits\LimitClauseTrait,
-	Traits\OrderByTrait,
+	Traits\OrderByClauseTrait,
 	Traits\TableRefTrait,
 	Traits\WhereClauseTrait,
 };
 
 class UpdateStatement implements SqlStatementInterface {
 	use SqlStatementTrait;
-	use FromClauseTrait;
 	use LimitClauseTrait;
-	use OrderByTrait;
+	use OrderByClauseTrait;
 	use TableRefTrait;
 	use WhereClauseTrait;
 
@@ -51,6 +49,10 @@ class UpdateStatement implements SqlStatementInterface {
 			$ast->push(Ast::space());
 			$ast->push($list);
 		}
+
+		$this->_pushWhereClause($ast);
+		$this->_pushOrderByClause($ast);
+		$this->_pushLimitClause($ast);
 
 		return $ast;
 	}

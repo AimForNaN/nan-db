@@ -11,7 +11,7 @@ use NaN\Database\Sql\Query\Statements\{
 use NaN\Database\Sql\Query\Statements\Clauses\{
 	Traits\FromClauseTrait,
 	Traits\LimitClauseTrait,
-	Traits\OrderByTrait,
+	Traits\OrderByClauseTrait,
 	Traits\WhereClauseTrait,
 };
 
@@ -19,7 +19,7 @@ class DeleteStatement implements SqlStatementInterface {
 	use SqlStatementTrait;
 	use FromClauseTrait;
 	use LimitClauseTrait;
-	use OrderByTrait;
+	use OrderByClauseTrait;
 	use WhereClauseTrait;
 
 	public function toAst(): Node {
@@ -28,12 +28,13 @@ class DeleteStatement implements SqlStatementInterface {
 			Ast::space(),
 		]);
 
-		if (\count($this->_from)) {
-			$ast->push(Ast::raw('FROM'));
-			$ast->push(Ast::space());
-			$ast->push($this->_from);
-			$ast->push(Ast::space());
-		}
+		$this->_pushFromClause($ast);
+
+		$this->_pushWhereClause($ast);
+
+		$this->_pushOrderByClause($ast);
+
+		$this->_pushLimitClause($ast);
 
 		return $ast;
 	}

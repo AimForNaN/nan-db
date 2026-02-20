@@ -2,6 +2,7 @@
 
 namespace NaN\Database\Sql\Query\Statements\Clauses\Traits;
 
+use NaN\Database\Ast;
 use NaN\Database\Ast\Tree;
 
 trait IntoClauseTrait {
@@ -13,5 +14,16 @@ trait IntoClauseTrait {
 		$this->_target = $this->_createTableReference($table, $database);
 
 		return $this;
+	}
+
+	protected function _pushIntoClause(Tree $ast): void {
+		if (isset($this->_target)) {
+			$ast->push(Ast::clause([
+				Ast::raw('INTO'),
+				Ast::space(),
+				$this->_target,
+				Ast::space(),
+			]));
+		}
 	}
 }

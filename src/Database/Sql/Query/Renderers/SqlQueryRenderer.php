@@ -2,15 +2,14 @@
 
 namespace NaN\Database\Sql\Query\Renderers;
 
-use NaN\Database\Ast\Node;
-use NaN\Database\Ast\Tree;
+use NaN\Database\Ast\{Node,Tree};
 use NaN\Database\Query\Statements\Interfaces\ClauseInterface;
 use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
 use NaN\Database\Quotes;
 
 class SqlQueryRenderer implements RendererInterface {
-	public function render(ClauseInterface $statement): string {
-		$data = $statement->toAst();
+	public function render(ClauseInterface $clause): string {
+		$data = $clause->toAst();
 		$ret = '';
 
 		if ($data instanceof Tree) {
@@ -62,10 +61,8 @@ class SqlQueryRenderer implements RendererInterface {
 				return '"' . $value . '"';
 			case Quotes::Single:
 				return '\'' . $value . '\'';
-			default:
-				return $value;
 		}
 
-		return null;
+		return $value;
 	}
 }

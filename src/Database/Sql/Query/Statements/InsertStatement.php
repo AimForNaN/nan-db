@@ -37,14 +37,7 @@ class InsertStatement implements SqlStatementInterface {
 			Ast::space(),
 		]);
 
-		if (isset($this->_target)) {
-			$ast->push(Ast::clause([
-				Ast::raw('INTO'),
-				Ast::space(),
-				$this->_target,
-				Ast::space(),
-			]));
-		}
+		$this->_pushIntoClause($ast);
 
 		if (\count($this->_columns)) {
 			$insert_columns = Ast::list();
@@ -65,14 +58,7 @@ class InsertStatement implements SqlStatementInterface {
 			]));
 		}
 
-		if (isset($this->_where) && \count($this->_where)) {
-			$ast->push(Ast::clause([
-				Ast::raw('WHERE'),
-				Ast::space(),
-				$this->_where->toAst(),
-				Ast::space(),
-			]));
-		}
+		$this->_pushWhereClause($ast);
 
 		return $ast;
 	}
