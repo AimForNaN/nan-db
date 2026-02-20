@@ -6,9 +6,11 @@ use NaN\Database\Ast;
 use NaN\Database\Ast\Node;
 use NaN\Database\Query\Statements\Interfaces\ClauseInterface;
 use NaN\Database\Quotes;
+use NaN\Database\Sql\Prepare;
 
 class WhereClause implements ClauseInterface, \Countable {
 	protected array $_data = [];
+	protected Prepare $_prepare = Prepare::None;
 
 	/**
 	 * Add AND where expression.
@@ -71,6 +73,12 @@ class WhereClause implements ClauseInterface, \Countable {
 		return $this->_addColumn('OR', $column, $operator, $value);
 	}
 
+	public function prepare(Prepare $prepare = Prepare::All): static {
+		$this->_prepare = $prepare;
+
+		return $this;
+	}
+
 	public function toAst(): Node {
 		$ast = Ast::tree('where');
 		$space = false;
@@ -97,7 +105,7 @@ class WhereClause implements ClauseInterface, \Countable {
 				$ast->push(Ast::space());
 				$ast->push(Ast::raw($operator));
 				$ast->push(Ast::space());
-				$ast->push(Ast::value($value, Quotes::Auto, true));
+				$ast->push(Ast::value($value, Quotes::Auto, $this->_prepare));
 			}
 
 			$space = true;
@@ -140,6 +148,7 @@ class WhereClause implements ClauseInterface, \Countable {
 		}
 
 		$where = new static();
+		$where->_prepare = $this->_prepare;
 
 		$this->_data[] = [$joining_operator, $where];
 

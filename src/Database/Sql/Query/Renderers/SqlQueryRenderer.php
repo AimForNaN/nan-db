@@ -8,18 +8,17 @@ use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
 use NaN\Database\Quotes;
 
 class SqlQueryRenderer implements RendererInterface {
-	public function render(ClauseInterface $clause): string {
-		$data = $clause->toAst();
+	public function render(Node $ast): string {
 		$ret = '';
 
-		if ($data instanceof Tree) {
-			$gen = $this->_generate($data);
+		if ($ast instanceof Tree) {
+			$gen = $this->_generate($ast);
 
 			foreach ($gen as $node) {
 				$ret .= $node;
 			}
-		} else if ($data->type === 'raw') {
-			$ret = $data->value;
+		} else if ($ast->type === 'raw') {
+			$ret = $ast->value;
 		}
 
 		return \trim($ret);
@@ -52,7 +51,7 @@ class SqlQueryRenderer implements RendererInterface {
 			case Quotes::Auto:
 				return match (gettype($value)) {
 					'string' => $this->_handleQuotes($value, Quotes::Single),
-					_ => $value,
+					default => $value,
 				};
 				break;
 			case Quotes::Backtick:

@@ -9,13 +9,13 @@ describe('Clauses', function () {
 		$query = new WhereClause();
 		$renderer = new SqlQueryRenderer();
 
-		$query->is('test', '=', 255)
+		$query->prepare()->is('test', '=', 255)
 			->and('test', 'IN', [255])
 			->or(function (WhereClause $query) {
 				$query->is('test', '>', 255);
 			})
 		;
 
-		expect($renderer->render($query))->toBe('`test` = ? AND `test` IN (?) OR (`test` > ?)');
+		expect($renderer->render($query->toAst()))->toBe('`test` = ? AND `test` IN (?) OR (`test` > ?)');
 	});
 });

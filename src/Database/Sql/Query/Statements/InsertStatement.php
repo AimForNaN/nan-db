@@ -9,6 +9,7 @@ use NaN\Database\Sql\Query\Statements\{
 	Traits\SqlStatementTrait,
 };
 use NaN\Database\Quotes;
+use NaN\Database\Sql\Prepare;
 use NaN\Database\Sql\Query\Statements\Clauses\{
 	Traits\IntoClauseTrait,
 	Traits\WhereClauseTrait,
@@ -54,7 +55,7 @@ class InsertStatement implements SqlStatementInterface {
 			$ast->push(Ast::clause([
 				Ast::raw('VALUES'),
 				Ast::space(),
-				Ast::value($this->_columns, Quotes::Auto, true),
+				Ast::value($this->_columns, Quotes::Auto, Prepare::All),
 			]));
 		}
 

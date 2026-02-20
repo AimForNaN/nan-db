@@ -8,7 +8,7 @@ use NaN\Database\Sql\Query\Renderers\SqlQueryRenderer;
 trait SqlStatementTrait {
 	public function exec(ConnectionInterface $connection): mixed {
 		$renderer = new SqlQueryRenderer();
-		$query = $renderer->render($this);
+		$query = $renderer->render($this->toAst());
 		return $connection->exec($query, $this->getBindings());
 	}
 

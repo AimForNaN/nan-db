@@ -3,6 +3,7 @@
 namespace NaN\Database;
 
 use NaN\Database\Ast\{Collection, Group, Node, Tree};
+use NaN\Database\Sql\Prepare;
 
 final class Ast {
 	public static function __callStatic(string $name, array $args) {
@@ -52,13 +53,13 @@ final class Ast {
 		return new Collection('list', $children);
 	}
 
-	public static function match(string $identifier, string $operator, mixed $value, Quotes $quotes = Quotes::None): Tree {
+	public static function match(string $identifier, string $operator, mixed $value, Quotes $quotes = Quotes::None, Prepare $prepare = Prepare::All): Tree {
 		return self::expression([
 			Ast::identifier($identifier),
 			Ast::raw(' '),
 			Ast::raw($operator),
 			Ast::raw(' '),
-			Ast::value($value, $quotes, true),
+			Ast::value($value, $quotes, $prepare),
 		]);
 	}
 
@@ -90,12 +91,27 @@ final class Ast {
 		$parent->unshift($child);
 	}
 
-	public static function value(mixed $value, Quotes $quotes = Quotes::None, bool $prepare = false): Node {
+	public static function value(mixed $value, Quotes $quotes = Quotes::None, Prepare $prepare = Prepare::None): Node {
 		if (\is_array($value)) {
 			return self::group([
 				self::list(\array_map(fn($value) => self::value($value, $quotes, $prepare), $value)),
 			]);
 		}
+
+		switch ($prepare) {
+			case Prepare::Strings:
+				if (\gettype($value) == 'string') {
+					$prepare = true;
+				}
+				break;
+			case Prepare::All:
+				$prepare = true;
+				break;
+			case Prepare::None:
+				$prepare = false;
+				break;
+		}
+
 
 		return self::node('value', [
 			'prepare' => $prepare,

@@ -2,6 +2,7 @@
 
 use NaN\Database\Sql\Query\{
 	Renderers\SqlQueryRenderer,
+	Statements\Clauses\WhereClause,
 	Statements\DeleteStatement,
 	Statements\InsertStatement,
 	Statements\SelectStatement,
@@ -20,7 +21,7 @@ describe('Statements', function () {
 		$query->update('test')
 			->with($columns)
 		;
-		expect($renderer->render($query))->toBe('UPDATE `test` SET `id` = ?, `name` = ?')
+		expect($renderer->render($query->toAst()))->toBe('UPDATE `test` SET `id` = ?, `name` = ?')
 			->and($query->getBindings())->toBe(\array_values($columns))
 		;
 	});
@@ -32,11 +33,13 @@ describe('Statements', function () {
 		$query->select()
 			->from('test')
 		;
-		expect($renderer->render($query))->toBe('SELECT ALL FROM `test`');
+		expect($renderer->render($query->toAst()))->toBe('SELECT ALL FROM `test`');
 
 		$query->select(['id'])
 			->from('test')
-			->where('id', '=', 255)
+			->where(function (WhereClause $where) {
+				$where->prepare()->is('id', '=', 255);
+			})
 			->groupBy(['id', 'test'])
 			->orderBy([
 				'id' => 'desc',
@@ -44,7 +47,7 @@ describe('Statements', function () {
 			])
 			->limit(1, 1)
 		;
-		expect($renderer->render($query))->toBe(\implode(' ', [
+		expect($renderer->render($query->toAst()))->toBe(\implode(' ', [
 			'SELECT `id` FROM `test`',
 			'WHERE `id` = ?',
 			'GROUP BY `id`, `test`',
@@ -61,7 +64,7 @@ describe('Statements', function () {
 		$query = new DeleteStatement();
 
 		$query->from('test');
-		expect($renderer->render($query))->toBe('DELETE FROM `test`');
+		expect($renderer->render($query->toAst()))->toBe('DELETE FROM `test`');
 	});
 
 	test('Push', function () {
@@ -72,7 +75,7 @@ describe('Statements', function () {
 		$query->insert($columns)
 			->into('test')
 		;
-		expect($renderer->render($query))->toBe('INSERT INTO `test` (`id`, `name`) VALUES (?, ?)')
+		expect($renderer->render($query->toAst()))->toBe('INSERT INTO `test` (`id`, `name`) VALUES (?, ?)')
 			->and($query->getBindings())->toBe(\array_values($columns))
 		;
 	});
