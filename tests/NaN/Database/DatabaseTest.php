@@ -2,10 +2,26 @@
 
 use NaN\Database\Sql\Drivers\SqlDriver;
 use NaN\Database\Sql\Query\{
+	Statements\Clauses\WhereClause,
 	Statements\InsertStatement,
-	Statements\Raw,
 	Statements\SelectStatement,
 };
+use NaN\Database\Sql\Schema\SqlField;
+use NaN\Database\Sql\Traits\SqlTableTrait;
+
+class TestTable implements \NaN\Database\Sql\Interfaces\SqlTableInterface {
+	use SqlTableTrait;
+
+	const string NAME = 'test';
+
+	public static function fields(): \Generator {
+		yield SqlField::int('id');
+	}
+
+	public static function indices(): \Generator {
+		yield;
+	}
+}
 
 describe('Database', function () {
 	test('Push and pull', function () {
@@ -19,26 +35,36 @@ describe('Database', function () {
 		]);
 		$query = $driver->createQueryBuilder();
 
-		expect(new Raw('CREATE TABLE `test` (`id` int);')->exec($db))->toBeTruthy();
+		expect(TestTable::create($db))->toBeTruthy();
 
-		$result = new Raw('SELECT `name` FROM `sqlite_master` WHERE type="table" AND name="test";')->exec($db);
+		$result = $db->exec($query->pull(function (SelectStatement $query) {
+			$query
+				->select(['name'])
+				->from('sqlite_master')
+				->where(function (WhereClause $where) {
+					$where->is('type', '=', 'table')
+						->and('name', '=', 'test')
+					;
+				})
+			;
+		}));
 		expect($result)->toBeInstanceOf(\PDOStatement::class)
 			->and([...$result])->toHaveCount(1)
 		;
 
-		$result = $query->push(function (InsertStatement $query) {
+		$result = $db->exec($query->push(function (InsertStatement $query) {
 			$query->insert([
 				'id' => 255,
 			])->into('test');
-		})->exec($db);
+		}));
 
 		expect($result)->not()->toBeFalse();
 
-		$results = $query->pull(function (SelectStatement $query) {
+		$results = $db->exec($query->pull(function (SelectStatement $query) {
 			$query->select([
 				'id',
 			])->from('test');
-		})->exec($db);
+		}));
 
 		expect($results)->toBeInstanceOf(\PDOStatement::class);
 
