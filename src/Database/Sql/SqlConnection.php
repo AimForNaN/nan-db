@@ -3,6 +3,8 @@
 namespace NaN\Database\Sql;
 
 use NaN\Database\Interfaces\ConnectionInterface;
+use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
+use NaN\Database\Sql\Query\Statements\Interfaces\SqlStatementInterface;
 
 class SqlConnection implements ConnectionInterface {
 	protected ?\PDO $_connection = null;
@@ -10,7 +12,10 @@ class SqlConnection implements ConnectionInterface {
 	/**
 	 * @throws \PDOException|\Exception
 	 */
-	public function __construct(array $driver_config) {
+	public function __construct(
+		array $driver_config,
+		protected RendererInterface $_renderer,
+	) {
 		$this->_connection = new \PDO(
 			$this->_generateDsn($driver_config),
 			$driver_config['username'] ?? null,
@@ -33,14 +38,21 @@ class SqlConnection implements ConnectionInterface {
 	}
 
 	/**
-	 * @throws \PDOException|\Exception
+	 * @param SqlStatementInterface $query
+	 *
+	 * @return \PDOStatement|false
 	 */
-	public function exec(mixed $query, array $bindings = []): \PDOStatement|false {
-		return $this->raw($query, $bindings);
+	public function exec(SqlStatementInterface $query): \PDOStatement|false {
+		$sql = $this->_renderer->render($query->toAst());
+		return $this->raw($sql, $query->getBindings());
 	}
 
 	public function getLastInsertId(): string | false {
 		return $this->_connection->lastInsertId();
+	}
+
+	public function getPdo(): \PDO {
+		return $this->_connection;
 	}
 
 	public function raw(string $query, array $bindings = []): \PDOStatement|false {

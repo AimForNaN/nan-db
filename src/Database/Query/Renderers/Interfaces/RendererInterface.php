@@ -2,6 +2,8 @@
 
 namespace NaN\Database\Query\Renderers\Interfaces;
 
+use NaN\Database\Ast\Node;
+
 interface RendererInterface {
-	public function render(mixed $data): string;
+	public function render(Node $ast): string;
 }

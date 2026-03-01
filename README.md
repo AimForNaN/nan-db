@@ -1,2 +1,3 @@
 # nan-db
-NaN\Database
+
+> NaN\Database

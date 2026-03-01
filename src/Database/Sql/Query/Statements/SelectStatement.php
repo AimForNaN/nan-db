@@ -3,62 +3,90 @@
 namespace NaN\Database\Sql\Query\Statements;
 
 use NaN\Database\Ast;
-use NaN\Database\Quotes;
+use NaN\Database\Ast\Node;
 use NaN\Database\Sql\Query\Statements\{
 	Interfaces\SqlStatementInterface,
 	Traits\SqlStatementTrait,
 };
 use NaN\Database\Sql\Query\Statements\Clauses\{
 	Traits\FromClauseTrait,
-	Traits\GroupByTrait,
+	Traits\GroupByClauseTrait,
 	Traits\LimitClauseTrait,
-	Traits\OrderByTrait,
+	Traits\OrderByClauseTrait,
 	Traits\WhereClauseTrait,
 };
 
 final class SelectStatement implements SqlStatementInterface {
 	use SqlStatementTrait;
 	use FromClauseTrait;
-	use GroupByTrait;
+	use GroupByClauseTrait;
 	use LimitClauseTrait;
-	use OrderByTrait;
+	use OrderByClauseTrait;
 	use WhereClauseTrait;
 
-	public function select(array $columns = ['ALL'], bool $distinct = false): self {
-		$this->_data = Ast::tree('select');
+	protected array $_columns = [];
+	protected bool $_distinct = false;
 
-		if ($distinct) {
-			$this->_data->push(Ast::expr('DISTINCT', quotes: [Quotes::None]));
+	public function last(string $column): self {
+		return $this->orderBy([$column => 'desc'])->limit(1);
+	}
+
+	public function select(array $columns = ['ALL']): self {
+		if (empty($columns)) {
+			throw new \InvalidArgumentException('Select statement must have at least one column!');
 		}
 
-		$list = Ast::list();
+		$this->_columns = $columns;
 
-		if (!empty($columns)) {
-			foreach ($columns as $alias => $column) {
-				$quotes = [Quotes::Backtick];
+		return $this;
+	}
+
+	public function toAst(): Node {
+		$ast = Ast::tree('select', [
+			Ast::raw('SELECT'),
+			Ast::space(),
+		]);
+
+		if ($this->_distinct) {
+			$ast->push(Ast::clause([
+				Ast::raw('DISTINCT'),
+				Ast::space(),
+			]));
+		}
+
+		if (!empty($this->_columns)) {
+			$list = Ast::list();
+
+			foreach ($this->_columns as $alias => $column) {
+				$expr = Ast::expression();
 
 				if ($column === 'ALL' || $column === '*') {
-					$quotes = [Quotes::None];
+					$ast->push(Ast::raw($column));
+					$ast->push(Ast::space());
+				} else {
+					$expr->push(Ast::identifier($column));
+					$expr->push(Ast::space());
 				}
 
-				$expr = Ast::expr($column, quotes: $quotes);
-
 				if (!\is_numeric($alias)) {
-					$expr = Ast::expr($column, 'AS', $alias, [Quotes::Backtick, Quotes::None, Quotes::Backtick]);
+					$expr->push(Ast::raw('AS'));
+					$expr->push(Ast::space());
+					$expr->push(Ast::identifier($alias));
+					$expr->push(Ast::space());
 				}
 
 				$list->push($expr);
 			}
 
-			$this->_data->push($list);
-		} else {
-			throw new \InvalidArgumentException('Select statement must have at least one column!');
+			$ast->push($list);
 		}
 
-		return $this;
-	}
+		$this->_pushFromClause($ast);
+		$this->_pushWhereClause($ast);
+		$this->_pushGroupByClause($ast);
+		$this->_pushOrderByClause($ast);
+		$this->_pushLimitClause($ast);
 
-	public function last(string $column): self {
-		return $this->orderBy([$column => 'desc'])->limit(1);
+		return $ast;
 	}
 }

@@ -22,6 +22,10 @@ class Node {
 	}
 
 	public function getData(string ...$args): mixed {
+		if (empty($args)) {
+			return $this->_data;
+		}
+
 		$ret = [];
 
 		foreach ($args as $arg) {

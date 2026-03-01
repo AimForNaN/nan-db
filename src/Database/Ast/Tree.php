@@ -16,7 +16,13 @@ class Tree extends Node implements \Countable, \IteratorAggregate {
 	}
 
 	public function getIterator(): \Traversable {
-		return new \ArrayIterator($this->_children);
+		foreach ($this->_children as $child) {
+			yield $child;
+
+			if ($child instanceof Tree) {
+				yield from $child;
+			}
+		}
 	}
 
 	public function push(Node $node): Node {
