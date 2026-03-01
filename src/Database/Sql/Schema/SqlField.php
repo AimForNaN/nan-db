@@ -19,6 +19,8 @@ use RavingDev\CaseConverter\CaseConverter;
  *
  * @property string $name
  *
+ * @method static self id(string $name = 'id') Instantiates field with type unsigned BIGINT and primary key constraint.
+ *
  * @method self autoIncrement(bool $auto_increment = true) Marks field to be auto-incremented.
  * @method self default(mixed $value) Sets default value for field.
  * @method self max(int $max) Sets maximum possible value for column (useful for varchar, integers, etc).
