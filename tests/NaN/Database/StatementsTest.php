@@ -33,6 +33,7 @@ describe('Statements', function () {
 		$query->select()
 			->from('test')
 		;
+
 		expect($renderer->render($query->toAst()))->toBe('SELECT ALL FROM `test`');
 
 		$query->select(['id'])
@@ -47,6 +48,7 @@ describe('Statements', function () {
 			])
 			->limit(1, 1)
 		;
+
 		expect($renderer->render($query->toAst()))->toBe(\implode(' ', [
 			'SELECT `id` FROM `test`',
 			'WHERE `id` = ?',
@@ -64,19 +66,24 @@ describe('Statements', function () {
 		$query = new DeleteStatement();
 
 		$query->from('test');
+
 		expect($renderer->render($query->toAst()))->toBe('DELETE FROM `test`');
 	});
 
 	test('Push', function () {
 		$renderer = new SqlQueryRenderer();
 		$query = new InsertStatement();
-
 		$columns = ['id' => 255, 'name' => 'test'];
-		$query->insert($columns)
-			->into('test')
-		;
+
+		$query->insert($columns)->into('test');
+
 		expect($renderer->render($query->toAst()))->toBe('INSERT INTO `test` (`id`, `name`) VALUES (?, ?)')
 			->and($query->getBindings())->toBe(\array_values($columns))
 		;
+
+		$query->insert([
+			'id' => 255,
+			[],
+		]);
 	});
 });

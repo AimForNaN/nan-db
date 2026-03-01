@@ -8,8 +8,9 @@ interface SqlFieldInterface {
 	public string $name {
 		get;
 	}
-
-	public function isPrimary(): bool;
+	public string $type {
+		get;
+	}
 
 	public function toAst(): Node;
 }

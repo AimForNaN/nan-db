@@ -6,15 +6,18 @@ use NaN\Database\Sql\Query\{
 	Statements\InsertStatement,
 	Statements\SelectStatement,
 };
-use NaN\Database\Sql\Schema\SqlField;
-use NaN\Database\Sql\Traits\SqlTableTrait;
+use NaN\Database\Sql\Schema\{
+	Interfaces\SqlTableInterface,
+	SqlField,
+	Traits\SqlTableTrait,
+};
 
-class TestTable implements \NaN\Database\Sql\Interfaces\SqlTableInterface {
+class TestTable implements SqlTableInterface {
 	use SqlTableTrait;
 
 	const string NAME = 'test';
 
-	public static function fields(): \Generator {
+	public function fields(): \Generator {
 		yield SqlField::int('id');
 	}
 
@@ -34,8 +37,9 @@ describe('Database', function () {
 			],
 		]);
 		$query = $driver->createQueryBuilder();
+		$table = new TestTable();
 
-		expect(TestTable::create($db))->toBeTruthy();
+		expect($table->create($db))->toBeTruthy();
 
 		$result = $db->exec($query->pull(function (SelectStatement $query) {
 			$query

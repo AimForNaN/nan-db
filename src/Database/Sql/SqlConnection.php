@@ -40,19 +40,19 @@ class SqlConnection implements ConnectionInterface {
 	/**
 	 * @param SqlStatementInterface $query
 	 *
-	 * @throws \PDOException|\Exception
+	 * @return \PDOStatement|false
 	 */
-	public function exec(mixed $query): \PDOStatement|false {
-		if (!\is_subclass_of($query, SqlStatementInterface::class)) {
-			throw new \InvalidArgumentException('An instance of SqlStatementInterface required!');
-		}
-
+	public function exec(SqlStatementInterface $query): \PDOStatement|false {
 		$sql = $this->_renderer->render($query->toAst());
 		return $this->raw($sql, $query->getBindings());
 	}
 
 	public function getLastInsertId(): string | false {
 		return $this->_connection->lastInsertId();
+	}
+
+	public function getPdo(): \PDO {
+		return $this->_connection;
 	}
 
 	public function raw(string $query, array $bindings = []): \PDOStatement|false {

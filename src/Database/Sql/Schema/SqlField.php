@@ -4,18 +4,41 @@ namespace NaN\Database\Sql\Schema;
 
 use NaN\Database\Ast;
 use NaN\Database\Ast\Node;
-use NaN\Database\Ast\Tree;
 use RavingDev\CaseConverter\CaseConverter;
 
-class SqlField extends Tree implements Interfaces\SqlFieldInterface {
+/**
+ * Represents a field schema.
+ *
+ * The methods below are handled using magic methods.
+ *   They are technically suggestions, so their use is mostly for
+ *   when you wish to have full compatibility with nan-db.
+ *
+ * Method names are used for internal data keys, converted to snake_case.
+ *   So, `autoIncrement` would be stored as `auto_increment`,
+ *   `generatedAlwaysAsIdentity` would be stored as `generated_always_as_identity`, etc.
+ *
+ * @property string $name
+ *
+ * @method self autoIncrement(bool $auto_increment = true) Marks field to be auto-incremented.
+ * @method self default(mixed $value) Sets default value for field.
+ * @method self max(int $max) Sets maximum possible value for column (useful for varchar, integers, etc).
+ * @method self nullable(bool $nullable = true) Sets whether field can be nullable.
+ * @method self primaryKey(bool $primary = true) Marks field as primary.
+ * @method self uniqueKey(bool $unique = true) Marks field as unique (typically irrelevant for primary keys).
+ * @method self unsigned(bool $unsigned = true) Marks field as unsigned.
+ */
+class SqlField extends Node implements Interfaces\SqlFieldInterface {
 	public function __construct(public readonly string $name, string $type) {
 		if (empty($name)) {
 			throw new \InvalidArgumentException('Field name cannot be empty!');
 		}
 
+		if (empty($type)) {
+			throw new \InvalidArgumentException('Field type cannot be empty!');
+		}
+
 		parent::__construct($type, [
-			Ast::identifier($name),
-			Ast::raw($type),
+			'name' => $name,
 		]);
 	}
 
@@ -30,13 +53,12 @@ class SqlField extends Tree implements Interfaces\SqlFieldInterface {
 
 	public static function __callStatic(string $type, array $args) {
 		$type = CaseConverter::toUpperFlatCase($type);
-		[$name] = $args;
+		[$name] = $args + [null];
 
 		switch ($type) {
 			case 'ID': {
-				$ret = new static($name, 'BIGINT')
+				$ret = new static($name ?? 'id', 'BIGINT')
 					->primaryKey() //<< unique + not null
-					->autoincrement()
 					->unsigned()
 				;
 				break;
@@ -47,10 +69,6 @@ class SqlField extends Tree implements Interfaces\SqlFieldInterface {
 		}
 
 		return $ret;
-	}
-
-	public function isPrimary(): bool {
-		return (bool)$this->__get('primary_key');
 	}
 
 	public function toAst(): Node {
