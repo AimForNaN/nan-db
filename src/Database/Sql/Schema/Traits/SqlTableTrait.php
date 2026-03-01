@@ -42,7 +42,17 @@ trait SqlTableTrait {
 		return $db->raw($query);
 	}
 
-	protected function toValue(mixed $value): mixed {
+	public function toValues(object $entity): array {
+		$ret = [];
+
+		foreach ($this->fields() as $field) {
+			$ret[$field->name] = $this->_toValue($entity->{$field->name});
+		}
+
+		return $ret;
+	}
+
+	protected function _toValue(mixed $value): mixed {
 		return match (gettype($value)) {
 			'array' => \json_encode($value),
 			'boolean' => \filter_var($value, FILTER_VALIDATE_BOOLEAN),
@@ -50,15 +60,5 @@ trait SqlTableTrait {
 			'integer' => \filter_var($value, FILTER_VALIDATE_INT),
 			default => (string)$value,
 		};
-	}
-
-	public function toValues(object $entity): array {
-		$ret = [];
-
-		foreach ($this->fields() as $field) {
-			$ret[$field->name] = $this->toValue($entity->{$field->name});
-		}
-
-		return $ret;
 	}
 }

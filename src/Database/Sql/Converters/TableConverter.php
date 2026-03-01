@@ -27,7 +27,7 @@ class TableConverter {
 		'VARCHAR' => 'string',
 		'auto_increment' => 'autoIncrement',
 		'default' => 'default',
-		'primary_key' => 'primaryKey',
+		'primary_key' => 'primary',
 		'index' => 'index',
 		'nullable' => 'nullable',
 		'unique_key' => 'unique',
