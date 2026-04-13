@@ -4,8 +4,8 @@ namespace NaN\Database\Sql;
 
 use NaN\Database\Interfaces\ConnectionInterface;
 use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
+use NaN\Database\Query\Statements\Interfaces\StatementInterface;
 use NaN\Database\Sql\Query\Renderers\SqlQueryRenderer;
-use NaN\Database\Sql\Query\Statements\Interfaces\SqlStatementInterface;
 
 class SqlConnection implements ConnectionInterface {
 	protected ?\PDO $_connection = null;
@@ -19,12 +19,9 @@ class SqlConnection implements ConnectionInterface {
 	) {
 		$this->_renderer = new SqlQueryRenderer();
 
-		$this->_connection = \PDO::connect(
-			$this->_generateDsn($driver_config['dsn'] ?? null),
-			$driver_config['username'] ?? null,
-			$driver_config['password'] ?? null,
-			$driver_config['options'] ?? null,
-		);
+		$driver_config['dsn'] = $this->_generateDsn($driver_config['dsn'] ?? []);
+
+		$this->_connection = \PDO::connect(...$driver_config);
 	}
 
 	public function __call(string $name, array $args) {
@@ -41,11 +38,11 @@ class SqlConnection implements ConnectionInterface {
 	}
 
 	/**
-	 * @param SqlStatementInterface $query
+	 * @param StatementInterface $query
 	 *
 	 * @return \PDOStatement|false
 	 */
-	public function exec(SqlStatementInterface $query): \PDOStatement|false {
+	public function exec(StatementInterface $query): \PDOStatement|false {
 		$sql = $this->_renderer->render($query->toAst());
 		return $this->raw($sql, $query->getBindings());
 	}
@@ -87,7 +84,7 @@ class SqlConnection implements ConnectionInterface {
 	 */
 	protected function _generateDsn(array|string $dsn): string {
 		if (empty($dsn)) {
-			throw new \Exception('Driver configuration not provided!');
+			throw new \Exception('DSN is required!');
 		}
 
 		if (\is_string($dsn)) {
