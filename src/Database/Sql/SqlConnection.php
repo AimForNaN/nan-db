@@ -4,20 +4,23 @@ namespace NaN\Database\Sql;
 
 use NaN\Database\Interfaces\ConnectionInterface;
 use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
+use NaN\Database\Sql\Query\Renderers\SqlQueryRenderer;
 use NaN\Database\Sql\Query\Statements\Interfaces\SqlStatementInterface;
 
 class SqlConnection implements ConnectionInterface {
 	protected ?\PDO $_connection = null;
+	protected RendererInterface $_renderer;
 
 	/**
 	 * @throws \PDOException|\Exception
 	 */
 	public function __construct(
 		array $driver_config,
-		protected RendererInterface $_renderer,
 	) {
-		$this->_connection = new \PDO(
-			$this->_generateDsn($driver_config),
+		$this->_renderer = new SqlQueryRenderer();
+
+		$this->_connection = \PDO::connect(
+			$this->_generateDsn($driver_config['dsn'] ?? null),
 			$driver_config['username'] ?? null,
 			$driver_config['password'] ?? null,
 			$driver_config['options'] ?? null,
@@ -82,22 +85,21 @@ class SqlConnection implements ConnectionInterface {
 	 *
 	 * @throws \Exception
 	 */
-	protected function _generateDsn(array $driver_config): string {
-		if (empty($driver_config['driver'])) {
-			throw new \Exception('Driver not specified!');
-		}
-
-		$prefix = $driver_config['driver'];
-		$config = $driver_config[$prefix] ?? null;
-
-		if (empty($config)) {
+	protected function _generateDsn(array|string $dsn): string {
+		if (empty($dsn)) {
 			throw new \Exception('Driver configuration not provided!');
 		}
 
-		if (\is_array($config)) {
-			$config = \array_map(fn($key, $value) => "{$key}={$value}", \array_keys($config), \array_values($config));
-			return "{$prefix}:" . \implode(';', $config);
+		if (\is_string($dsn)) {
+			return $dsn;
 		}
+
+		$prefix = $dsn[0];
+
+		unset($dsn[0]);
+
+		$config = \array_map(fn($key, $value) => "{$key}={$value}", \array_keys($config), \array_values($config));
+		$config = \implode(';', $config);
 
 		return "{$prefix}:{$config}";
 	}

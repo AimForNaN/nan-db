@@ -30,8 +30,7 @@ describe('Database', function () {
 	test('Push and pull', function () {
 		$driver = new SqlDriver();
 		$db = $driver->createConnection([
-			'driver' => 'sqlite',
-			'sqlite' => ':memory:',
+			'dsn' => 'sqlite::memory:',
 			'options' => [
 				PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
 			],
