@@ -3,9 +3,7 @@
 namespace NaN\Database\Sql\Query\Builders;
 
 use NaN\Database\Query\Builders\Interfaces\QueryBuilderInterface;
-use NaN\Database\Query\Statements\Interfaces\StatementInterface;
 use NaN\Database\Sql\Query\{
-	Renderers\SqlQueryRenderer,
 	Statements\DeleteStatement,
 	Statements\InsertStatement,
 	Statements\SelectStatement,
@@ -13,51 +11,50 @@ use NaN\Database\Sql\Query\{
 };
 
 class SqlQueryBuilder implements QueryBuilderInterface {
-	/**
-	 * @throws \Exception
-	 */
-	public function patch(?callable $fn = null): StatementInterface {
-		$query = new UpdateStatement(new SqlQueryRenderer());
+	public function patch(string $table_ref = ''): UpdateStatement {
+		if (empty($table_ref)) {
+			throw new \InvalidArgumentException('Table reference cannot be empty!');
+		}
 
-		if ($fn) {
-			$fn($query);
+		$query = new UpdateStatement();
+
+		$query->update($table_ref);
+
+		return $query;
+	}
+
+	public function pull(array $selection = []): SelectStatement {
+		$query = new SelectStatement();
+
+		if (!empty($selection)) {
+			$query->select($selection);
+		} else {
+			$query->select();
 		}
 
 		return $query;
 	}
 
-	public function pull(?callable $fn = null): StatementInterface {
-		$query = new SelectStatement(new SqlQueryRenderer());
-
-		if ($fn) {
-			$fn($query);
+	public function purge(string $table_ref = ''): DeleteStatement {
+		if (empty($table_ref)) {
+			throw new \InvalidArgumentException('Table reference cannot be empty!');
 		}
+
+		$query = new DeleteStatement();
+
+		$query->from($table_ref);
 
 		return $query;
 	}
 
-	/**
-	 * @throws \Exception
-	 */
-	public function purge(?callable $fn = null): StatementInterface {
-		$query = new DeleteStatement(new SqlQueryRenderer());
-
-		if ($fn) {
-			$fn($query);
+	public function push(array $columns = []): InsertStatement {
+		if (empty($columns)) {
+			throw new \InvalidArgumentException('Fields cannot be empty!');
 		}
 
-		return $query;
-	}
+		$query = new InsertStatement();
 
-	/**
-	 * @throws \Exception
-	 */
-	public function push(?callable $fn = null): StatementInterface {
-		$query = new InsertStatement(new SqlQueryRenderer());
-
-		if ($fn) {
-			$fn($query);
-		}
+		$query->insert($columns);
 
 		return $query;
 	}
