@@ -40,38 +40,39 @@ describe('Database', function () {
 
 		expect($table->create($db))->toBeTruthy();
 
-		$result = $db->exec($query->pull(function (SelectStatement $query) {
+		$result = $db->exec(
 			$query
-				->select(['name'])
+				->pull(['name'])
 				->from('sqlite_master')
 				->where(function (WhereClause $where) {
 					$where->is('type', '=', 'table')
-						->and('name', '=', 'test')
+						  ->and('name', '=', 'test')
 					;
 				})
-			;
-		}));
+		);
 		expect($result)->toBeInstanceOf(\PDOStatement::class)
 			->and([...$result])->toHaveCount(1)
 		;
 
-		$result = $db->exec($query->push(function (InsertStatement $query) {
-			$query->insert([
-				'id' => 255,
-			])->into('test');
-		}));
+		$result = $db->exec(
+			$query
+				->push([
+					'id' => 255,
+				])
+				->into('test')
+		);
 
 		expect($result)->not()->toBeFalse();
 
-		$results = $db->exec($query->pull(function (SelectStatement $query) {
-			$query->select([
-				'id',
-			])->from('test');
-		}));
+		$results = $db->exec(
+			$query
+				->pull(['id'])
+				->from('test')
+		);
 
 		expect($results)->toBeInstanceOf(\PDOStatement::class);
 
 		$result = $results->fetch();
 		expect($result['id'])->toBe(255);
-	});//->depends('Pull', 'Push');
+	});
 });
