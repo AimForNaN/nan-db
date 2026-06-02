@@ -13,13 +13,14 @@ use RavingDev\CaseConverter\CaseConverter;
  *   They are technically suggestions, so their use is mostly for
  *   when you wish to have full compatibility with nan-db.
  *
- * Method names are used for internal data keys, converted to snake_case.
+ * Non-static method names are used for internal data keys, converted to snake_case.
  *   So, `autoIncrement` would be stored as `auto_increment`,
  *   `generatedAlwaysAsIdentity` would be stored as `generated_always_as_identity`, etc.
  *
  * @property string $name
  *
  * @method static self id(string $name = 'id') Instantiates field with type unsigned BIGINT and primary key constraint.
+ * @method static self varchar(string $name) Instantiates field with type VARCHAR.
  *
  * @method self autoIncrement(bool $auto_increment = true) Marks field to be auto-incremented.
  * @method self default(mixed $value) Sets default value for field.
