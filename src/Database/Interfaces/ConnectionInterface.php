@@ -2,10 +2,12 @@
 
 namespace NaN\Database\Interfaces;
 
-interface ConnectionInterface {
-	public function close(): bool;
+use NaN\Database\Query\Builders\Interfaces\QueryBuilderInterface;
 
-	public function getPdo(): \PDO;
+interface ConnectionInterface {
+	public function close(): void;
+
+	public function queryBuilder(): QueryBuilderInterface;
 
 	public function raw(string $query): mixed;
 }

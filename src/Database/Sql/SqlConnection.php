@@ -3,16 +3,20 @@
 namespace NaN\Database\Sql;
 
 use NaN\Database\Interfaces\ConnectionInterface;
+use NaN\Database\Query\Builders\Interfaces\QueryBuilderInterface;
 use NaN\Database\Query\Renderers\Interfaces\RendererInterface;
 use NaN\Database\Query\Statements\Interfaces\StatementInterface;
-use NaN\Database\Sql\Query\Renderers\SqlQueryRenderer;
+use NaN\Database\Sql\Query\{
+	Builders\SqlQueryBuilder,
+	Renderers\SqlQueryRenderer,
+};
 
 class SqlConnection implements ConnectionInterface {
 	protected ?\PDO $_connection = null;
 	protected RendererInterface $_renderer;
 
 	/**
-	 * @throws \PDOException|\Exception
+	 * @throws \PDOException|\RuntimeException
 	 */
 	public function __construct(
 		array $driver_config,
@@ -32,9 +36,8 @@ class SqlConnection implements ConnectionInterface {
 		return $this->_connection->$name;
 	}
 
-	public function close(): bool {
+	public function close(): void {
 		$this->_connection = null;
-		return true;
 	}
 
 	/**
@@ -53,6 +56,10 @@ class SqlConnection implements ConnectionInterface {
 
 	public function getPdo(): \PDO {
 		return $this->_connection;
+	}
+
+	public function queryBuilder(): QueryBuilderInterface {
+		return new SqlQueryBuilder();
 	}
 
 	public function raw(string $query, array $bindings = []): \PDOStatement|false {
@@ -76,15 +83,15 @@ class SqlConnection implements ConnectionInterface {
 	}
 
 	/**
-	 * @param array $driver_config
+	 * @param array|string $dsn
 	 *
 	 * @return string
 	 *
-	 * @throws \Exception
+	 * @throws \RuntimeException if `$dsn` is empty!
 	 */
 	protected function _generateDsn(array|string $dsn): string {
 		if (empty($dsn)) {
-			throw new \Exception('DSN is required!');
+			throw new \RuntimeException('DSN is required!');
 		}
 
 		if (\is_string($dsn)) {
@@ -95,7 +102,7 @@ class SqlConnection implements ConnectionInterface {
 
 		unset($dsn[0]);
 
-		$config = \array_map(fn($key, $value) => "{$key}={$value}", \array_keys($config), \array_values($config));
+		$config = \array_map(fn($key, $value) => "{$key}={$value}", \array_keys($dsn), \array_values($dsn));
 		$config = \implode(';', $config);
 
 		return "{$prefix}:{$config}";

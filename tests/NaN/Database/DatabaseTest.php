@@ -1,11 +1,7 @@
 <?php
 
 use NaN\Database\Sql\Drivers\SqlDriver;
-use NaN\Database\Sql\Query\{
-	Statements\Clauses\WhereClause,
-	Statements\InsertStatement,
-	Statements\SelectStatement,
-};
+use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
 use NaN\Database\Sql\Schema\{
 	Interfaces\SqlTableInterface,
 	SqlField,
@@ -35,7 +31,7 @@ describe('Database', function () {
 				PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
 			],
 		]);
-		$query = $driver->createQueryBuilder();
+		$query = $db->queryBuilder();
 		$table = new TestTable();
 
 		expect($table->create($db))->toBeTruthy();
