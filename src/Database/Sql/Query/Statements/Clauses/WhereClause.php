@@ -10,7 +10,7 @@ use NaN\Database\Sql\Prepare;
 
 class WhereClause implements ClauseInterface, \Countable {
 	protected array $_data = [];
-	protected Prepare $_prepare = Prepare::None;
+	protected Prepare $_prepare = Prepare::All;
 
 	/**
 	 * Add AND where expression.

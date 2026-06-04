@@ -1,5 +1,6 @@
 <?php
 
+use NaN\Database\Sql\Prepare;
 use NaN\Database\Sql\Query\Raw;
 use NaN\Database\Sql\Query\Renderers\SqlQueryRenderer;
 use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
@@ -9,7 +10,7 @@ describe('Clauses', function () {
 		$query = new WhereClause();
 		$renderer = new SqlQueryRenderer();
 
-		$query->prepare()->is('test', '=', 255)
+		$query->is('test', '=', 255)
 			->and('test', 'IN', [255])
 			->and('test', 'NOT IN', [0])
 			->and('test', 'IS NOT', null)
@@ -28,7 +29,7 @@ describe('Clauses', function () {
 			'OR (`test` > ?)',
 		]));
 
-		$query = new WhereClause();
+		$query = new WhereClause()->prepare(Prepare::None);
 
 		$query->is('test', '=', 'isn\'t')
 		      ->and('test', 'IN', [255])
