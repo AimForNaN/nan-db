@@ -8,6 +8,7 @@ use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
 
 trait WhereClauseTrait {
 	protected WhereClause $_where;
+
 	public function where(\Closure $fn): static {
 		$this->_where = new WhereClause();
 
@@ -18,6 +19,7 @@ trait WhereClauseTrait {
 
 	protected function _pushWhereClause(Tree $ast): void {
 		if (isset($this->_where) && \count($this->_where)) {
+			$this->_where->prepare($this->_prepare);
 			$ast->push(Ast::clause([
 				Ast::raw('WHERE'),
 				Ast::space(),

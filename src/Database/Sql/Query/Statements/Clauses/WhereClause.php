@@ -96,9 +96,12 @@ class WhereClause implements ClauseInterface, \Countable {
 			}
 
 			if ($column instanceof WhereClause) {
+				$column->prepare($this->_prepare);
+
 				$group = Ast::group([
 					$column->toAst(),
 				]);
+
 				$ast->push($group);
 			} else {
 				$ast->push(Ast::identifier($column));

@@ -10,7 +10,7 @@ describe('Clauses', function () {
 		$query = new WhereClause();
 		$renderer = new SqlQueryRenderer();
 
-		$query->is('test', '=', 255)
+		$query->is('test', '=', 'isn\'t')
 			->and('test', 'IN', [255])
 			->and('test', 'NOT IN', [0])
 			->and('test', 'IS NOT', null)
@@ -29,17 +29,7 @@ describe('Clauses', function () {
 			'OR (`test` > ?)',
 		]));
 
-		$query = new WhereClause()->prepare(Prepare::None);
-
-		$query->is('test', '=', 'isn\'t')
-		      ->and('test', 'IN', [255])
-		      ->and('test', 'NOT IN', [0])
-		      ->and('test', 'IS NOT', null)
-		      ->and('test', '>', new Raw('CURRENT_TIMESTAMP()'))
-		      ->or(function (WhereClause $query) {
-				  $query->is('test', '>', 255);
-			  })
-		;
+		$query->prepare(Prepare::None);
 
 		expect($renderer->render($query->toAst()))->toBe(\implode(' ', [
 			'`test` = \'isn&apos;t\'',
