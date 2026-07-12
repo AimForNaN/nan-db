@@ -33,11 +33,11 @@ use RavingDev\CaseConverter\CaseConverter;
 class SqlField extends Node implements Interfaces\SqlFieldInterface {
 	public function __construct(public readonly string $name, string $type) {
 		if (empty($name)) {
-			throw new \InvalidArgumentException('Field name cannot be empty!');
+			throw new \ValueError('Field name cannot be empty!');
 		}
 
 		if (empty($type)) {
-			throw new \InvalidArgumentException('Field type cannot be empty!');
+			throw new \ValueError('Field type cannot be empty!');
 		}
 
 		parent::__construct($type, [
