@@ -4,6 +4,9 @@ namespace NaN\Database\Traits;
 
 use NaN\Database\Interfaces\EntityInterface;
 
+/**
+ * @implements EntityInterface
+ */
 trait EntityTrait {
 	public static function fromArray(iterable $data): EntityInterface {
 		$new = new static();
@@ -13,5 +16,13 @@ trait EntityTrait {
 		}
 
 		return $new;
+	}
+
+	public function withId(string $id): EntityInterface {
+		$clone = clone $this;
+
+		$clone->id = $id;
+
+		return $clone;
 	}
 }
