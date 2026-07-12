@@ -8,6 +8,8 @@ use NaN\Database\Interfaces\EntityInterface;
  * @implements EntityInterface
  */
 trait EntityTrait {
+	private(set) string $id;
+
 	public static function fromArray(iterable $data): EntityInterface {
 		$new = new static();
 
