@@ -18,14 +18,9 @@ class SqlConnection implements ConnectionInterface {
 	/**
 	 * @throws \PDOException|\RuntimeException
 	 */
-	public function __construct(
-		array $driver_config,
-	) {
+	public function __construct(\PDO $connection) {
+		$this->_connection = $connection;
 		$this->_renderer = new SqlQueryRenderer();
-
-		$driver_config['dsn'] = $this->_generateDsn($driver_config['dsn'] ?? []);
-
-		$this->_connection = \PDO::connect(...$driver_config);
 	}
 
 	public function __call(string $name, array $args) {
@@ -80,31 +75,5 @@ class SqlConnection implements ConnectionInterface {
 		}
 
 		return false;
-	}
-
-	/**
-	 * @param array|string $dsn
-	 *
-	 * @return string
-	 *
-	 * @throws \RuntimeException if `$dsn` is empty!
-	 */
-	protected function _generateDsn(array|string $dsn): string {
-		if (empty($dsn)) {
-			throw new \RuntimeException('DSN is required!');
-		}
-
-		if (\is_string($dsn)) {
-			return $dsn;
-		}
-
-		$prefix = $dsn[0];
-
-		unset($dsn[0]);
-
-		$config = \array_map(fn($key, $value) => "{$key}={$value}", \array_keys($dsn), \array_values($dsn));
-		$config = \implode(';', $config);
-
-		return "{$prefix}:{$config}";
 	}
 }
