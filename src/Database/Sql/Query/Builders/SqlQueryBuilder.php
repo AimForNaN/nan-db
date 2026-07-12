@@ -13,7 +13,7 @@ use NaN\Database\Sql\Query\{
 class SqlQueryBuilder implements QueryBuilderInterface {
 	public function patch(string $table_ref = ''): UpdateStatement {
 		if (empty($table_ref)) {
-			throw new \InvalidArgumentException('Table reference cannot be empty!');
+			throw new \ValueError('Table reference cannot be empty!');
 		}
 
 		$query = new UpdateStatement();
@@ -37,7 +37,7 @@ class SqlQueryBuilder implements QueryBuilderInterface {
 
 	public function purge(string $table_ref = ''): DeleteStatement {
 		if (empty($table_ref)) {
-			throw new \InvalidArgumentException('Table reference cannot be empty!');
+			throw new \ValueError('Table reference cannot be empty!');
 		}
 
 		$query = new DeleteStatement();
@@ -49,7 +49,7 @@ class SqlQueryBuilder implements QueryBuilderInterface {
 
 	public function push(array $columns = []): InsertStatement {
 		if (empty($columns)) {
-			throw new \InvalidArgumentException('Fields cannot be empty!');
+			throw new \ValueError('Fields cannot be empty!');
 		}
 
 		$query = new InsertStatement();

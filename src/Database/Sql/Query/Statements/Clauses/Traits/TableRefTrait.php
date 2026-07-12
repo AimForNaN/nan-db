@@ -7,11 +7,11 @@ use NaN\Database\Ast\Tree;
 
 trait TableRefTrait {
 	/**
-	 * @throws \InvalidArgumentException If table is not provided!
+	 * @throws \ValueError If table is not provided!
 	 */
 	protected function _createTableReference(string $table, ?string $database = null): Tree {
 		if (empty($table)) {
-			throw new \InvalidArgumentException('Table reference is required!');
+			throw new \ValueError('Table reference is required!');
 		}
 
 		$expr = Ast::expression([

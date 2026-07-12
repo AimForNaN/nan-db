@@ -10,7 +10,7 @@ trait GroupByClauseTrait {
 
 	public function groupBy(array $columns): static {
 		if (empty($columns)) {
-			throw new \InvalidArgumentException('Group-by columns must not be empty!');
+			throw new \ValueError('Group-by columns must not be empty!');
 		}
 
 		$this->_group_by = $columns;

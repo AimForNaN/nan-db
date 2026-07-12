@@ -24,7 +24,7 @@ class InsertStatement implements SqlStatementInterface {
 
 	public function insert(array $columns): self {
 		if (empty($columns)) {
-			throw new \InvalidArgumentException('Insert statement must have at least one column!');
+			throw new \ValueError('Insert statement must have at least one column!');
 		}
 
 		$this->_columns = $columns;

@@ -33,7 +33,7 @@ final class SelectStatement implements SqlStatementInterface {
 
 	public function select(array $columns = ['ALL']): self {
 		if (empty($columns)) {
-			throw new \InvalidArgumentException('Select statement must have at least one column!');
+			throw new \ValueError('Select statement must have at least one column!');
 		}
 
 		$this->_columns = $columns;

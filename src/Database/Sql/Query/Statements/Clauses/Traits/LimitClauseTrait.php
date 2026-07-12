@@ -11,12 +11,12 @@ trait LimitClauseTrait {
 
 	public function limit(int $limit = 1, int $offset = 0): static {
 		if ($limit < 1) {
-			throw new \InvalidArgumentException('Limit must be greater than 0!');
+			throw new \ValueError('Limit must be greater than 0!');
 		}
 
 		if ($offset !== 0) {
 			if ($offset < 1) {
-				throw new \InvalidArgumentException('Offset must be greater than 0!');
+				throw new \ValueError('Offset must be greater than 0!');
 			}
 		}
 
