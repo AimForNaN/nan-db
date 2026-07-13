@@ -20,6 +20,16 @@ trait EntityTrait {
 		return $new;
 	}
 
+	public function jsonSerialize(): array {
+		return \array_map(function ($value) {
+			if ($value instanceof \BackedEnum) {
+				return $value->value;
+			}
+
+			return $value;
+		}, (array)$this);
+	}
+
 	public function withId(string $id): EntityInterface {
 		$clone = clone $this;
 

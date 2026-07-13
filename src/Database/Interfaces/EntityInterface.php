@@ -2,7 +2,7 @@
 
 namespace NaN\Database\Interfaces;
 
-interface EntityInterface {
+interface EntityInterface extends \JsonSerializable {
 	public string $id { get; }
 
 	public static function fromArray(iterable $data): EntityInterface;
