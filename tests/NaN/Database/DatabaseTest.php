@@ -1,12 +1,12 @@
 <?php
 
-use NaN\Database\Sql\Drivers\SqlDriver;
 use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
 use NaN\Database\Sql\Schema\{
 	Interfaces\SqlTableInterface,
 	SqlField,
 	Traits\SqlTableTrait,
 };
+use NaN\Database\Sql\SqlConnection;
 
 class TestTable implements SqlTableInterface {
 	use SqlTableTrait;
@@ -24,8 +24,7 @@ class TestTable implements SqlTableInterface {
 
 describe('Database', function () {
 	test('Push and pull', function () {
-		$driver = new SqlDriver();
-		$db = $driver->createConnection([
+		$db = SqlConnection::connect([
 			'dsn' => 'sqlite::memory:',
 			'options' => [
 				PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
@@ -36,35 +35,36 @@ describe('Database', function () {
 
 		expect($table->create($db))->toBeTruthy();
 
-		$result = $db->exec(
-			$query
-				->pull(['name'])
-				->from('sqlite_master')
-				->where(function (WhereClause $where) {
-					$where->is('type', '=', 'table')
-						  ->and('name', '=', 'test')
-					;
-				})
-		);
+		$result = $query
+			->pull(['name'])
+			->from('sqlite_master')
+			->where(function (WhereClause $where) {
+				$where->is('type', '=', 'table')
+					  ->and('name', '=', 'test')
+				;
+			})
+			->exec($db)
+		;
+
 		expect($result)->toBeInstanceOf(\PDOStatement::class)
 			->and([...$result])->toHaveCount(1)
 		;
 
-		$result = $db->exec(
-			$query
-				->push([
-					'id' => 255,
-				])
-				->into('test')
-		);
+		$result = $query
+			->push([
+				'id' => 255,
+			])
+			->into('test')
+			->exec($db)
+		;
 
 		expect($result)->not()->toBeFalse();
 
-		$results = $db->exec(
-			$query
-				->pull(['id'])
-				->from('test')
-		);
+		$results = $query
+			->pull(['id'])
+			->from('test')
+			->exec($db)
+		;
 
 		expect($results)->toBeInstanceOf(\PDOStatement::class);
 

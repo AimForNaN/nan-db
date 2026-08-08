@@ -3,12 +3,11 @@
 namespace NaN\Database\Interfaces;
 
 use NaN\Database\Query\Builders\Interfaces\QueryBuilderInterface;
-use NaN\Database\Query\Statements\Interfaces\StatementInterface;
 
 interface ConnectionInterface {
 	public function close(): void;
 
-	public function exec(StatementInterface $query): mixed;
+	static public function connect(array $config): ConnectionInterface;
 
 	public function queryBuilder(): QueryBuilderInterface;
 
