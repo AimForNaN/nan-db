@@ -1,12 +1,13 @@
 <?php
 
+use NaN\Database\Connection;
+use NaN\Database\Sql\Query\Builders\SqlQueryBuilder;
 use NaN\Database\Sql\Query\Statements\Clauses\WhereClause;
 use NaN\Database\Sql\Schema\{
 	Interfaces\SqlTableInterface,
 	SqlField,
 	Traits\SqlTableTrait,
 };
-use NaN\Database\Sql\SqlConnection;
 
 class TestTable implements SqlTableInterface {
 	use SqlTableTrait;
@@ -24,13 +25,13 @@ class TestTable implements SqlTableInterface {
 
 describe('Database', function () {
 	test('Push and pull', function () {
-		$db = SqlConnection::connect([
+		$db = Connection::connect([
 			'dsn' => 'sqlite::memory:',
 			'options' => [
 				PDO::ATTR_ERRMODE => PDO::ERRMODE_SILENT,
 			],
 		]);
-		$query = $db->queryBuilder();
+		$query = new SqlQueryBuilder();
 		$table = new TestTable();
 
 		expect($table->create($db))->toBeTruthy();
